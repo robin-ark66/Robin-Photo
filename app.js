@@ -367,14 +367,19 @@ async function handleAuthSubmit(e) {
             await auth.signInWithEmailAndPassword(email, password);
             showToast('Welcome back!', 'success');
         } else {
+            console.log('Creating account...');
             const credential = await auth.createUserWithEmailAndPassword(email, password);
+            console.log('Account created:', credential.user.uid);
             await auth.updateProfile(credential.user, { displayName: name });
+            console.log('Profile updated');
             await saveUserData(credential.user);
+            console.log('User data saved');
             showToast('Account created successfully!', 'success');
         }
         closeAllModals();
     } catch (error) {
-        showToast(getAuthErrorMessage(error.code), 'error');
+        console.error('Auth error details:', error);
+        showToast(`${getAuthErrorMessage(error.code)} (${error.message})`, 'error');
     } finally {
         hideLoading();
     }
@@ -427,10 +432,11 @@ async function loadUserData(user) {
 }
 
 function getAuthErrorMessage(code) {
+    console.error('Auth error:', code, arguments.callee?.caller);
     const messages = {
         'auth/email-already-in-use': 'This email is already registered',
         'auth/invalid-email': 'Invalid email address',
-        'auth/operation-not-allowed': 'Operation not allowed',
+        'auth/operation-not-allowed': 'Email/Password not enabled. Go to Firebase Console > Authentication > Sign-in method > Enable Email/Password',
         'auth/weak-password': 'Password should be at least 6 characters',
         'auth/user-disabled': 'This account has been disabled',
         'auth/user-not-found': 'No account found with this email',
@@ -438,7 +444,7 @@ function getAuthErrorMessage(code) {
         'auth/popup-closed-by-user': 'Sign-in popup was closed',
         'auth/network-request-failed': 'Network error occurred'
     };
-    return messages[code] || 'An error occurred. Please try again.';
+    return messages[code] || `An error occurred: ${code}`;
 }
 
 // Navigation
