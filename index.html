@@ -610,7 +610,8 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
         import { getAuth } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
-        import { getFirestore } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
+        import { GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
+        import { getFirestore, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
         import { getStorage } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-storage.js";
 
         const firebaseConfig = {
@@ -623,10 +624,12 @@
         };
 
         const app = initializeApp(firebaseConfig);
-        window.firebaseApp = app;
         window.auth = getAuth(app);
         window.db = getFirestore(app);
         window.storage = getStorage(app);
+        window.googleProvider = new GoogleAuthProvider();
+        window.serverTimestamp = serverTimestamp;
+        window.Timestamp = Timestamp;
         
         // Signal that Firebase is ready
         window.firebaseReady = true;

@@ -13,7 +13,7 @@ function waitForFirebase() {
 }
 
 // Use global Firebase services (loaded via CDN in index.html)
-let auth, db, storage, firebase, googleProvider;
+let auth, db, storage, googleProvider;
 
 // Application State
 // ============================================
@@ -48,8 +48,7 @@ async function init() {
     auth = window.auth;
     db = window.db;
     storage = window.storage;
-    firebase = window.firebaseApp;
-    googleProvider = new firebase.auth.GoogleAuthProvider();
+    googleProvider = window.googleProvider;
     
     cacheElements();
     setupEventListeners();
@@ -416,7 +415,7 @@ async function saveUserData(user) {
         email: user.email,
         displayName: user.displayName || '',
         photoURL: user.photoURL || '',
-        createdAt: window.firebase.firestore.FieldValue.serverTimestamp()
+        createdAt: window.serverTimestamp()
     }, { merge: true });
 }
 
@@ -731,17 +730,17 @@ async function handleEventSubmit(e) {
             userId: state.user.uid,
             name,
             description,
-            date: date ? window.firebase.firestore.Timestamp.fromDate(date) : null,
+            date: date ? window.Timestamp.fromDate(date) : null,
             isPublic,
             coverImage,
-            updatedAt: window.firebase.firestore.FieldValue.serverTimestamp()
+            updatedAt: window.serverTimestamp()
         };
         
         if (state.isEditMode) {
             await db.collection('events').doc(state.editingEventId).update(eventData);
             showToast('Event updated successfully!', 'success');
         } else {
-            eventData.createdAt = window.firebase.firestore.FieldValue.serverTimestamp();
+            eventData.createdAt = window.serverTimestamp();
             await db.collection('events').add(eventData);
             showToast('Event created successfully!', 'success');
         }
@@ -1026,7 +1025,7 @@ async function uploadPhotos() {
                 eventId: state.currentEvent.id,
                 url: downloadURL,
                 caption: '',
-                createdAt: window.firebase.firestore.FieldValue.serverTimestamp()
+                createdAt: window.serverTimestamp()
             });
             
             uploaded++;
