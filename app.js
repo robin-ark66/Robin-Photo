@@ -387,8 +387,8 @@ async function handleGoogleSignIn() {
         const result = await window.signInWithPopup(auth, googleProvider);
         const user = result.user;
         
-        const userDoc = await db.collection('users').doc(user.uid).get();
-        if (!userDoc.exists) {
+        const userDoc = await window.getDoc(window.doc(db, 'users', user.uid));
+        if (!userDoc.exists()) {
             await saveUserData(user);
         }
         
@@ -412,7 +412,7 @@ async function handleLogout() {
 }
 
 async function saveUserData(user) {
-    await db.collection('users').doc(user.uid).set({
+    await window.setDoc(window.doc(db, 'users', user.uid), {
         email: user.email,
         displayName: user.displayName || '',
         photoURL: user.photoURL || '',
@@ -421,8 +421,8 @@ async function saveUserData(user) {
 }
 
 async function loadUserData(user) {
-    const userDoc = await db.collection('users').doc(user.uid).get();
-    if (userDoc.exists) {
+    const userDoc = await window.getDoc(window.doc(db, 'users', user.uid));
+    if (userDoc.exists()) {
         state.currentUser = { uid: user.uid, ...userDoc.data() };
     }
 }
@@ -490,17 +490,15 @@ async function loadDashboardData() {
         showLoading();
         
         // Get event count
-        const eventsSnapshot = await db.collection('events')
-            .where('userId', '==', state.currentUser.uid)
-            .get();
+        const eventsQuery = window.query(window.collection(db, 'events'), window.where('userId', '==', state.currentUser.uid));
+        const eventsSnapshot = await window.getDocs(eventsQuery);
         const eventCount = eventsSnapshot.size;
         
         // Get photo count
         let photoCount = 0;
         for (const eventDoc of eventsSnapshot.docs) {
-            const photosSnapshot = await db.collection('photos')
-                .where('eventId', '==', eventDoc.id)
-                .get();
+            const photosQuery = window.query(window.collection(db, 'photos'), window.where('eventId', '==', eventDoc.id));
+            const photosSnapshot = await window.getDocs(photosQuery);
             photoCount += photosSnapshot.size;
         }
         
@@ -508,11 +506,13 @@ async function loadDashboardData() {
         elements.totalPhotos.textContent = photoCount;
         
         // Load recent events
-        const recentEvents = await db.collection('events')
-            .where('userId', '==', state.currentUser.uid)
-            .orderBy('createdAt', 'desc')
-            .limit(3)
-            .get();
+        const recentEventsQuery = window.query(
+            window.collection(db, 'events'),
+            window.where('userId', '==', state.currentUser.uid),
+            window.orderBy('createdAt', 'desc'),
+            window.limit(3)
+        );
+        const recentEvents = await window.getDocs(recentEventsQuery);
         
         state.events = recentEvents.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         renderRecentEvents();
@@ -552,14 +552,15 @@ async function loadEvents() {
     try {
         showLoading();
         
-        let query = db.collection('events')
-            .where('userId', '==', state.currentUser.uid);
-        
-        // Apply sorting
-        const sortField = state.sortBy === 'newest' ? 'createdAt' : 'createdAt';
         const sortDirection = state.sortBy === 'newest' ? 'desc' : 'asc';
         
-        const snapshot = await query.orderBy(sortField, sortDirection).get();
+        const eventsQuery = window.query(
+            window.collection(db, 'events'),
+            window.where('userId', '==', state.currentUser.uid),
+            window.orderBy('createdAt', sortDirection)
+        );
+        
+        const snapshot = await window.getDocs(eventsQuery);
         
         state.events = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         
@@ -662,9 +663,8 @@ async function loadPhotoCounts() {
     for (const el of photoCountElements) {
         const eventId = el.dataset.eventId;
         try {
-            const snapshot = await db.collection('photos')
-                .where('eventId', '==', eventId)
-                .get();
+            const photosQuery = window.query(window.collection(db, 'photos'), window.where('eventId', '==', eventId));
+            const snapshot = await window.getDocs(photosQuery);
             el.textContent = `${snapshot.size} photo${snapshot.size !== 1 ? 's' : ''}`;
         } catch (error) {
             el.textContent = '0 photos';
@@ -738,11 +738,11 @@ async function handleEventSubmit(e) {
         };
         
         if (state.isEditMode) {
-            await db.collection('events').doc(state.editingEventId).update(eventData);
+            await window.updateDoc(window.doc(db, 'events', state.editingEventId), eventData);
             showToast('Event updated successfully!', 'success');
         } else {
             eventData.createdAt = window.serverTimestamp();
-            await db.collection('events').add(eventData);
+            await window.addDoc(window.collection(db, 'events'), eventData);
             showToast('Event created successfully!', 'success');
         }
         
@@ -791,9 +791,9 @@ async function openEventDetail(eventId) {
     try {
         showLoading();
         
-        const eventDoc = await db.collection('events').doc(eventId).get();
+        const eventDoc = await window.getDoc(window.doc(db, 'events', eventId));
         
-        if (!eventDoc.exists) {
+        if (!eventDoc.exists()) {
             showToast('Event not found', 'error');
             navigateTo('events');
             return;
@@ -802,7 +802,7 @@ async function openEventDetail(eventId) {
         state.currentEvent = { id: eventDoc.id, ...eventDoc.data() };
         
         // Check access
-        if (!state.currentEvent.isPublic && state.currentEvent.userId !== state.user?.uid) {
+        if (!state.currentEvent.isPublic && state.currentEvent.userId !== state.currentUser?.uid) {
             showToast('You do not have access to this event', 'error');
             navigateTo('events');
             return;
@@ -831,7 +831,7 @@ async function openEventDetail(eventId) {
         await loadPhotoCount();
         
         // Update visibility of edit buttons
-        const isOwner = state.currentEvent.userId === state.user?.uid;
+        const isOwner = state.currentEvent.userId === state.currentUser?.uid;
         elements.editEventBtn.classList.toggle('hidden', !isOwner);
         elements.deleteEventBtn.classList.toggle('hidden', !isOwner);
         elements.uploadPhotosBtn.classList.toggle('hidden', !isOwner);
@@ -848,9 +848,8 @@ async function openEventDetail(eventId) {
 
 async function loadPhotoCount() {
     try {
-        const snapshot = await db.collection('photos')
-            .where('eventId', '==', state.currentEvent.id)
-            .get();
+        const photosQuery = window.query(window.collection(db, 'photos'), window.where('eventId', '==', state.currentEvent.id));
+        const snapshot = await window.getDocs(photosQuery);
         elements.eventPhotoCount.textContent = `${snapshot.size} photo${snapshot.size !== 1 ? 's' : ''}`;
     } catch (error) {
         elements.eventPhotoCount.textContent = '0 photos';
@@ -861,10 +860,12 @@ async function loadPhotoCount() {
 // ============================================
 async function loadPhotos(eventId) {
     try {
-        const snapshot = await db.collection('photos')
-            .where('eventId', '==', eventId)
-            .orderBy('createdAt', 'desc')
-            .get();
+        const photosQuery = window.query(
+            window.collection(db, 'photos'),
+            window.where('eventId', '==', eventId),
+            window.orderBy('createdAt', 'desc')
+        );
+        const snapshot = await window.getDocs(photosQuery);
         
         state.currentPhotos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         
@@ -1021,7 +1022,7 @@ async function uploadPhotos() {
             const downloadURL = await window.storageGetDownloadURL(snapshot.ref);
             
             // Save to Firestore
-            await db.collection('photos').add({
+            await window.addDoc(window.collection(db, 'photos'), {
                 userId: state.currentUser.uid,
                 eventId: state.currentEvent.id,
                 url: downloadURL,
@@ -1180,7 +1181,7 @@ async function updatePhotoCaption() {
     
     if (newCaption !== photo.caption) {
         try {
-            await db.collection('photos').doc(photo.id).update({ caption: newCaption });
+            await window.updateDoc(window.doc(db, 'photos', photo.id), { caption: newCaption });
             state.currentPhotos[state.currentPhotoIndex].caption = newCaption;
             showToast('Caption updated', 'success');
         } catch (error) {
@@ -1200,9 +1201,8 @@ function confirmDeleteEvent() {
             showLoading();
             
             // Delete all photos
-            const photosSnapshot = await db.collection('photos')
-                .where('eventId', '==', state.currentEvent.id)
-                .get();
+            const photosQuery = window.query(window.collection(db, 'photos'), window.where('eventId', '==', state.currentEvent.id));
+            const photosSnapshot = await window.getDocs(photosQuery);
             
             for (const photoDoc of photosSnapshot.docs) {
                 // Delete from storage
@@ -1213,11 +1213,11 @@ function confirmDeleteEvent() {
                     console.warn('Could not delete photo file:', e);
                 }
                 // Delete from Firestore
-                await photoDoc.ref.delete();
+                await window.deleteDoc(photoDoc.ref);
             }
             
             // Delete event
-            await db.collection('events').doc(state.currentEvent.id).delete();
+            await window.deleteDoc(window.doc(db, 'events', state.currentEvent.id));
             
             showToast('Event deleted successfully', 'success');
             state.currentEvent = null;
@@ -1255,7 +1255,7 @@ function confirmDeletePhoto(photoId = null) {
             }
             
             // Delete from Firestore
-            await db.collection('photos').doc(targetPhoto.id).delete();
+            await window.deleteDoc(window.doc(db, 'photos', targetPhoto.id));
             
             showToast('Photo deleted', 'success');
             closeAllModals();
@@ -1424,16 +1424,16 @@ async function loadSharedEvent(eventId) {
     try {
         showLoading();
         
-        const eventDoc = await db.collection('events').doc(eventId).get();
+        const eventDoc = await window.getDoc(window.doc(db, 'events', eventId));
         
-        if (!eventDoc.exists) {
+        if (!eventDoc.exists()) {
             showToast('Event not found', 'error');
             return;
         }
         
         const eventData = { id: eventDoc.id, ...eventDoc.data() };
         
-        if (!eventData.isPublic && eventData.userId !== state.user?.uid) {
+        if (!eventData.isPublic && eventData.userId !== state.currentUser?.uid) {
             showToast('This event is private', 'error');
             return;
         }
@@ -1445,10 +1445,12 @@ async function loadSharedEvent(eventId) {
         showSection('public-event');
         
         // Load public photos
-        const photosSnapshot = await db.collection('photos')
-            .where('eventId', '==', eventId)
-            .orderBy('createdAt', 'desc')
-            .get();
+        const photosQuery = window.query(
+            window.collection(db, 'photos'),
+            window.where('eventId', '==', eventId),
+            window.orderBy('createdAt', 'desc')
+        );
+        const photosSnapshot = await window.getDocs(photosQuery);
         
         const photos = photosSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         
