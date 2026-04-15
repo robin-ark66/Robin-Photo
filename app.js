@@ -766,7 +766,7 @@ async function handleEventSubmit(e) {
 
 async function uploadCoverImage(file) {
     const ref = window.storageRef(storage, `covers/${state.currentUser.uid}/${Date.now()}_${file.name}`);
-    await window.storagePut(ref, file);
+    await window.uploadBytes(ref, file);
     return await window.storageGetDownloadURL(ref);
 }
 
@@ -1017,7 +1017,7 @@ async function uploadPhotos() {
             // Upload to Storage
             const fileName = `${Date.now()}_${file.name}`;
             const ref = window.storageRef(storage, `photos/${state.currentUser.uid}/${state.currentEvent.id}/${fileName}`);
-            const snapshot = await window.storagePut(ref, compressedFile);
+            const snapshot = await window.uploadBytes(ref, compressedFile);
             const downloadURL = await window.storageGetDownloadURL(snapshot.ref);
             
             // Save to Firestore

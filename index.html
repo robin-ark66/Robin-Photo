@@ -620,7 +620,7 @@
         } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
         import { GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
         import { getFirestore, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
-        import { getStorage, ref, put, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-storage.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-storage.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDSDRLG8EZZ63hLaBML7HQI68Vx-wAUC3c",
@@ -650,7 +650,7 @@
         // Storage
         window.storage = getStorage(app);
         window.storageRef = ref;
-        window.storagePut = put;
+        window.uploadBytes = uploadBytes;
         window.storageGetDownloadURL = getDownloadURL;
         window.storageDelete = deleteObject;
         
