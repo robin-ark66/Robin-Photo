@@ -605,32 +605,38 @@ async function loadEvents() {
     try {
         showLoading();
         
-        const sortDirection = state.sortBy === 'newest' ? 'desc' : 'asc';
-        
+        // Fetch all events without orderBy (to avoid index requirement)
         const eventsQuery = window.query(
             window.collection(db, 'events'),
-            window.where('userId', '==', state.currentUser.uid),
-            window.orderBy('createdAt', sortDirection)
+            window.where('userId', '==', state.currentUser.uid)
         );
         
         const snapshot = await window.getDocs(eventsQuery);
         
-        state.events = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        let events = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        
+        // Sort in memory
+        events.sort((a, b) => {
+            const dateA = a.createdAt?.seconds || 0;
+            const dateB = b.createdAt?.seconds || 0;
+            return state.sortBy === 'newest' ? dateB - dateA : dateA - dateB;
+        });
         
         // Apply search filter
         if (state.searchQuery) {
-            state.events = state.events.filter(event => 
+            events = events.filter(event => 
                 event.name.toLowerCase().includes(state.searchQuery.toLowerCase())
             );
         }
         
         // Apply visibility filter
         if (state.filterVisibility !== 'all') {
-            state.events = state.events.filter(event => 
+            events = events.filter(event => 
                 event.isPublic === (state.filterVisibility === 'public')
             );
         }
         
+        state.events = events;
         renderEvents();
         loadPhotoCounts();
         
@@ -913,12 +919,17 @@ async function loadPhotos(eventId) {
     try {
         const photosQuery = window.query(
             window.collection(db, 'photos'),
-            window.where('eventId', '==', eventId),
-            window.orderBy('createdAt', 'desc')
+            window.where('eventId', '==', eventId)
         );
         const snapshot = await window.getDocs(photosQuery);
         
-        state.currentPhotos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        state.currentPhotos = snapshot.docs
+            .map(doc => ({ id: doc.id, ...doc.data() }))
+            .sort((a, b) => {
+                const dateA = a.createdAt?.seconds || 0;
+                const dateB = b.createdAt?.seconds || 0;
+                return dateB - dateA;
+            });
         
         renderPhotos();
         
@@ -1156,11 +1167,13 @@ async function uploadToCloudinary(file) {
         }
     );
     
+    const data = await response.json();
+    
     if (!response.ok) {
-        throw new Error('Cloudinary upload failed');
+        console.error('Cloudinary error:', data);
+        throw new Error(data.error?.message || 'Cloudinary upload failed');
     }
     
-    const data = await response.json();
     return data.secure_url;
 }
 
@@ -1500,12 +1513,17 @@ async function loadSharedEvent(eventId) {
         // Load public photos
         const photosQuery = window.query(
             window.collection(db, 'photos'),
-            window.where('eventId', '==', eventId),
-            window.orderBy('createdAt', 'desc')
+            window.where('eventId', '==', eventId)
         );
         const photosSnapshot = await window.getDocs(photosQuery);
         
-        const photos = photosSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const photos = photosSnapshot.docs
+            .map(doc => ({ id: doc.id, ...doc.data() }))
+            .sort((a, b) => {
+                const dateA = a.createdAt?.seconds || 0;
+                const dateB = b.createdAt?.seconds || 0;
+                return dateB - dateA;
+            });
         
         if (photos.length === 0) {
             elements.publicPhotosGrid.classList.add('hidden');
