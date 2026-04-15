@@ -50,6 +50,13 @@ async function init() {
     storage = window.storage;
     googleProvider = window.googleProvider;
     
+    console.log('Firebase initialized:', {
+        auth: typeof auth,
+        db: typeof db,
+        storage: typeof storage,
+        authMethods: auth ? Object.keys(auth).slice(0, 10) : 'null'
+    });
+    
     cacheElements();
     setupEventListeners();
     initTheme();
@@ -361,6 +368,9 @@ async function handleAuthSubmit(e) {
     const password = elements.authPassword.value;
     const name = elements.authName.value;
     
+    console.log('Auth object:', auth);
+    console.log('Auth methods:', auth ? Object.keys(auth) : 'auth is undefined');
+    
     try {
         showLoading();
         if (state.authMode === 'login') {
@@ -432,7 +442,6 @@ async function loadUserData(user) {
 }
 
 function getAuthErrorMessage(code) {
-    console.error('Auth error:', code, arguments.callee?.caller);
     const messages = {
         'auth/email-already-in-use': 'This email is already registered',
         'auth/invalid-email': 'Invalid email address',
