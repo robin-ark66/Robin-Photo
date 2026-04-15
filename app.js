@@ -1,12 +1,19 @@
 // Robin Photo - Main Application JavaScript
 // ============================================
 
+// Wait for Firebase to be ready
+function waitForFirebase() {
+    return new Promise((resolve) => {
+        if (window.firebaseReady) {
+            resolve();
+        } else {
+            document.addEventListener('firebase-ready', resolve, { once: true });
+        }
+    });
+}
+
 // Use global Firebase services (loaded via CDN in index.html)
-const auth = window.auth;
-const db = window.db;
-const storage = window.storage;
-const firebase = window.firebaseApp;
-const googleProvider = new firebase.auth.GoogleAuthProvider();
+let auth, db, storage, firebase, googleProvider;
 
 // Application State
 // ============================================
@@ -34,6 +41,16 @@ const elements = {};
 document.addEventListener('DOMContentLoaded', init);
 
 async function init() {
+    // Wait for Firebase to be ready
+    await waitForFirebase();
+    
+    // Initialize Firebase services
+    auth = window.auth;
+    db = window.db;
+    storage = window.storage;
+    firebase = window.firebaseApp;
+    googleProvider = new firebase.auth.GoogleAuthProvider();
+    
     cacheElements();
     setupEventListeners();
     initTheme();

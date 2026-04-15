@@ -627,6 +627,10 @@
         window.auth = getAuth(app);
         window.db = getFirestore(app);
         window.storage = getStorage(app);
+        
+        // Signal that Firebase is ready
+        window.firebaseReady = true;
+        document.dispatchEvent(new Event('firebase-ready'));
     </script>
     
     <!-- App -->
