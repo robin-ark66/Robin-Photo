@@ -490,7 +490,7 @@ async function loadDashboardData() {
         
         // Get event count
         const eventsSnapshot = await db.collection('events')
-            .where('userId', '==', state.user.uid)
+            .where('userId', '==', state.currentUser.uid)
             .get();
         const eventCount = eventsSnapshot.size;
         
@@ -508,7 +508,7 @@ async function loadDashboardData() {
         
         // Load recent events
         const recentEvents = await db.collection('events')
-            .where('userId', '==', state.user.uid)
+            .where('userId', '==', state.currentUser.uid)
             .orderBy('createdAt', 'desc')
             .limit(3)
             .get();
@@ -552,7 +552,7 @@ async function loadEvents() {
         showLoading();
         
         let query = db.collection('events')
-            .where('userId', '==', state.user.uid);
+            .where('userId', '==', state.currentUser.uid);
         
         // Apply sorting
         const sortField = state.sortBy === 'newest' ? 'createdAt' : 'createdAt';
@@ -727,7 +727,7 @@ async function handleEventSubmit(e) {
         }
         
         const eventData = {
-            userId: state.user.uid,
+            userId: state.currentUser.uid,
             name,
             description,
             date: date ? window.Timestamp.fromDate(date) : null,
@@ -764,7 +764,7 @@ async function handleEventSubmit(e) {
 }
 
 async function uploadCoverImage(file) {
-    const ref = storage.ref(`covers/${state.user.uid}/${Date.now()}_${file.name}`);
+    const ref = storage.ref(`covers/${state.currentUser.uid}/${Date.now()}_${file.name}`);
     await ref.put(file);
     return await ref.getDownloadURL();
 }
@@ -1015,13 +1015,13 @@ async function uploadPhotos() {
             
             // Upload to Storage
             const fileName = `${Date.now()}_${file.name}`;
-            const ref = storage.ref(`photos/${state.user.uid}/${state.currentEvent.id}/${fileName}`);
+            const ref = storage.ref(`photos/${state.currentUser.uid}/${state.currentEvent.id}/${fileName}`);
             const snapshot = await ref.put(compressedFile);
             const downloadURL = await snapshot.ref.getDownloadURL();
             
             // Save to Firestore
             await db.collection('photos').add({
-                userId: state.user.uid,
+                userId: state.currentUser.uid,
                 eventId: state.currentEvent.id,
                 url: downloadURL,
                 caption: '',
