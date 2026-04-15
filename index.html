@@ -609,10 +609,18 @@
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
-        import { getAuth } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
+        import { 
+            getAuth, 
+            signInWithEmailAndPassword, 
+            createUserWithEmailAndPassword,
+            updateProfile,
+            signInWithPopup,
+            signOut,
+            onAuthStateChanged
+        } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
         import { GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
         import { getFirestore, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
-        import { getStorage } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-storage.js";
+        import { getStorage, ref, put, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-storage.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDSDRLG8EZZ63hLaBML7HQI68Vx-wAUC3c",
@@ -624,12 +632,30 @@
         };
 
         const app = initializeApp(firebaseConfig);
+        
+        // Auth
         window.auth = getAuth(app);
+        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+        window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+        window.updateProfile = updateProfile;
+        window.signInWithPopup = signInWithPopup;
+        window.signOut = signOut;
+        window.onAuthStateChanged = onAuthStateChanged;
+        
+        // Firestore
         window.db = getFirestore(app);
-        window.storage = getStorage(app);
-        window.googleProvider = new GoogleAuthProvider();
         window.serverTimestamp = serverTimestamp;
         window.Timestamp = Timestamp;
+        
+        // Storage
+        window.storage = getStorage(app);
+        window.storageRef = ref;
+        window.storagePut = put;
+        window.storageGetDownloadURL = getDownloadURL;
+        window.storageDelete = deleteObject;
+        
+        // Providers
+        window.googleProvider = new GoogleAuthProvider();
         
         // Signal that Firebase is ready
         window.firebaseReady = true;
