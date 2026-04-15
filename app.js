@@ -13,7 +13,7 @@ function waitForFirebase() {
 }
 
 // Use global Firebase services (loaded via CDN in index.html)
-let auth, db, storage, googleProvider;
+let auth, db, googleProvider;
 
 // Application State
 // ============================================
@@ -47,7 +47,6 @@ async function init() {
     // Initialize Firebase services
     auth = window.auth;
     db = window.db;
-    storage = window.storage;
     googleProvider = window.googleProvider;
     
     cacheElements();
@@ -553,16 +552,22 @@ async function loadDashboardData() {
         elements.totalEvents.textContent = eventCount;
         elements.totalPhotos.textContent = photoCount;
         
-        // Load recent events
+        // Load recent events (without orderBy to avoid index requirement)
         const recentEventsQuery = window.query(
             window.collection(db, 'events'),
-            window.where('userId', '==', state.currentUser.uid),
-            window.orderBy('createdAt', 'desc'),
-            window.limit(3)
+            window.where('userId', '==', state.currentUser.uid)
         );
         const recentEvents = await window.getDocs(recentEventsQuery);
         
-        state.events = recentEvents.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        // Sort in memory and limit to 3
+        state.events = recentEvents.docs
+            .map(doc => ({ id: doc.id, ...doc.data() }))
+            .sort((a, b) => {
+                const dateA = a.createdAt?.seconds || 0;
+                const dateB = b.createdAt?.seconds || 0;
+                return dateB - dateA;
+            })
+            .slice(0, 3);
         renderRecentEvents();
         loadPhotoCounts();
         
@@ -813,9 +818,7 @@ async function handleEventSubmit(e) {
 }
 
 async function uploadCoverImage(file) {
-    const ref = window.storageRef(storage, `covers/${state.currentUser.uid}/${Date.now()}_${file.name}`);
-    await window.uploadBytes(ref, file);
-    return await window.storageGetDownloadURL(ref);
+    return await uploadToCloudinary(file);
 }
 
 function handleCoverSelect(e) {
@@ -1063,11 +1066,8 @@ async function uploadPhotos() {
             // Compress image
             const compressedFile = await compressImage(file);
             
-            // Upload to Storage
-            const fileName = `${Date.now()}_${file.name}`;
-            const ref = window.storageRef(storage, `photos/${state.currentUser.uid}/${state.currentEvent.id}/${fileName}`);
-            const snapshot = await window.uploadBytes(ref, compressedFile);
-            const downloadURL = await window.storageGetDownloadURL(snapshot.ref);
+            // Upload to Cloudinary
+            const downloadURL = await uploadToCloudinary(compressedFile);
             
             // Save to Firestore
             await window.addDoc(window.collection(db, 'photos'), {
@@ -1141,6 +1141,27 @@ async function compressImage(file) {
         };
         reader.readAsDataURL(file);
     });
+}
+
+async function uploadToCloudinary(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', window.CLOUDINARY_UPLOAD_PRESET);
+    
+    const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${window.CLOUDINARY_CLOUD_NAME}/image/upload`,
+        {
+            method: 'POST',
+            body: formData
+        }
+    );
+    
+    if (!response.ok) {
+        throw new Error('Cloudinary upload failed');
+    }
+    
+    const data = await response.json();
+    return data.secure_url;
 }
 
 // Photo Actions
@@ -1248,19 +1269,11 @@ function confirmDeleteEvent() {
         try {
             showLoading();
             
-            // Delete all photos
+            // Delete all photos from Firestore
             const photosQuery = window.query(window.collection(db, 'photos'), window.where('eventId', '==', state.currentEvent.id));
             const photosSnapshot = await window.getDocs(photosQuery);
             
             for (const photoDoc of photosSnapshot.docs) {
-                // Delete from storage
-                try {
-                    const photoRef = window.storageRef(storage, photoDoc.data().url);
-                    await window.storageDelete(photoRef);
-                } catch (e) {
-                    console.warn('Could not delete photo file:', e);
-                }
-                // Delete from Firestore
                 await window.deleteDoc(photoDoc.ref);
             }
             
@@ -1293,14 +1306,6 @@ function confirmDeletePhoto(photoId = null) {
     deleteCallback = async () => {
         try {
             showLoading();
-            
-            // Delete from storage
-            try {
-                const photoRef = window.storageRef(storage, targetPhoto.url);
-                await window.storageDelete(photoRef);
-            } catch (e) {
-                console.warn('Could not delete photo file:', e);
-            }
             
             // Delete from Firestore
             await window.deleteDoc(window.doc(db, 'photos', targetPhoto.id));

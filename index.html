@@ -636,7 +636,7 @@
         } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
         import { GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
         import { getFirestore, serverTimestamp, Timestamp, collection, doc, addDoc, getDoc, getDocs, updateDoc, deleteDoc, setDoc, query, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-storage.js";
+
 
         const firebaseConfig = {
             apiKey: "AIzaSyDSDRLG8EZZ63hLaBML7HQI68Vx-wAUC3c",
@@ -677,12 +677,9 @@
         window.orderBy = (field, direction) => orderBy(field, direction);
         window.limit = (n) => limit(n);
         
-        // Storage
-        window.storage = getStorage(app);
-        window.storageRef = ref;
-        window.uploadBytes = uploadBytes;
-        window.storageGetDownloadURL = getDownloadURL;
-        window.storageDelete = deleteObject;
+        // Cloudinary Config
+        window.CLOUDINARY_CLOUD_NAME = 'dpb2eeq6t';
+        window.CLOUDINARY_UPLOAD_PRESET = 'Robinphoto';
         
         // Providers
         window.googleProvider = new GoogleAuthProvider();
