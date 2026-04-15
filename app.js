@@ -89,6 +89,12 @@ function cacheElements() {
     elements.googleBtn = document.getElementById('google-btn');
     elements.authSwitchText = document.getElementById('auth-switch-text');
     elements.authSwitchBtn = document.getElementById('auth-switch-btn');
+    elements.forgotPasswordContainer = document.getElementById('forgot-password-container');
+    elements.forgotPasswordBtn = document.getElementById('forgot-password-btn');
+    elements.resetPasswordForm = document.getElementById('reset-password-form');
+    elements.resetEmail = document.getElementById('reset-email');
+    elements.sendResetBtn = document.getElementById('send-reset-btn');
+    elements.backToLoginBtn = document.getElementById('back-to-login-btn');
     
     // Dashboard
     elements.totalEvents = document.getElementById('total-events');
@@ -196,6 +202,9 @@ function setupEventListeners() {
     elements.googleBtn.addEventListener('click', handleGoogleSignIn);
     elements.authSwitchBtn.addEventListener('click', toggleAuthMode);
     elements.logoutBtn?.addEventListener('click', handleLogout);
+    elements.forgotPasswordBtn?.addEventListener('click', showForgotPassword);
+    elements.sendResetBtn?.addEventListener('click', handlePasswordReset);
+    elements.backToLoginBtn?.addEventListener('click', showAuthForm.bind(null, 'login'));
     
     // Navigation Links
     document.querySelectorAll('[data-link]').forEach(link => {
@@ -338,21 +347,60 @@ function updateAuthUI(user) {
 
 function showAuthForm(mode = 'login') {
     state.authMode = mode;
+    elements.resetPasswordForm.classList.add('hidden');
+    elements.authForm.classList.remove('hidden');
+    elements.authDivider?.classList.remove('hidden');
+    elements.googleBtn.classList.remove('hidden');
+    elements.authSwitchBtn.classList.remove('hidden');
+    
     if (mode === 'login') {
         elements.authSubmit.textContent = 'Login';
         elements.nameGroup.classList.add('hidden');
         elements.authSwitchText.textContent = "Don't have an account?";
         elements.authSwitchBtn.textContent = 'Sign Up';
+        elements.forgotPasswordContainer.classList.remove('hidden');
     } else {
         elements.authSubmit.textContent = 'Sign Up';
         elements.nameGroup.classList.remove('hidden');
         elements.authSwitchText.textContent = 'Already have an account?';
         elements.authSwitchBtn.textContent = 'Login';
+        elements.forgotPasswordContainer.classList.add('hidden');
     }
 }
 
 function toggleAuthMode() {
     showAuthForm(state.authMode === 'login' ? 'signup' : 'login');
+}
+
+function showForgotPassword() {
+    elements.authForm.classList.add('hidden');
+    elements.authDivider?.classList.add('hidden');
+    elements.googleBtn.classList.add('hidden');
+    elements.authSwitchBtn.classList.add('hidden');
+    elements.forgotPasswordContainer.classList.add('hidden');
+    elements.resetPasswordForm.classList.remove('hidden');
+}
+
+async function handlePasswordReset() {
+    const email = elements.resetEmail.value.trim();
+    
+    if (!email) {
+        showToast('Please enter your email', 'error');
+        return;
+    }
+    
+    try {
+        showLoading();
+        await window.sendPasswordResetEmail(auth, email);
+        showToast('Password reset email sent! Check your inbox.', 'success');
+        elements.resetEmail.value = '';
+        showAuthForm('login');
+    } catch (error) {
+        console.error('Password reset error:', error);
+        showToast(getAuthErrorMessage(error.code), 'error');
+    } finally {
+        hideLoading();
+    }
 }
 
 async function handleAuthSubmit(e) {

@@ -612,6 +612,16 @@ img {
     color: var(--text-secondary);
 }
 
+.forgot-password {
+    text-align: center;
+    margin-top: var(--space-md);
+    font-size: var(--font-size-sm);
+}
+
+#reset-password-form {
+    margin-top: var(--space-lg);
+}
+
 /* ============================================
    Sections & Headers
    ============================================ */

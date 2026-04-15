@@ -141,6 +141,21 @@
                         <span id="auth-switch-text">Don't have an account?</span>
                         <button type="button" id="auth-switch-btn" class="btn-link">Sign Up</button>
                     </p>
+                    
+                    <p id="forgot-password-container" class="forgot-password hidden">
+                        <button type="button" id="forgot-password-btn" class="btn-link">Forgot Password?</button>
+                    </p>
+                    
+                    <div id="reset-password-form" class="hidden">
+                        <div class="form-group">
+                            <label for="reset-email">Enter your email to reset password</label>
+                            <input type="email" id="reset-email" placeholder="your@email.com">
+                        </div>
+                        <button type="button" id="send-reset-btn" class="btn btn-primary btn-block">Send Reset Link</button>
+                        <p class="auth-switch" style="margin-top: 1rem;">
+                            <button type="button" id="back-to-login-btn" class="btn-link">Back to Login</button>
+                        </p>
+                    </div>
                 </div>
             </div>
         </section>
@@ -616,10 +631,11 @@
             updateProfile,
             signInWithPopup,
             signOut,
-            onAuthStateChanged
+            onAuthStateChanged,
+            sendPasswordResetEmail
         } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
         import { GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
-        import { getFirestore, serverTimestamp, Timestamp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
+        import { getFirestore, serverTimestamp, Timestamp, collection, doc, addDoc, getDoc, getDocs, updateDoc, deleteDoc, setDoc, query, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-storage.js";
 
         const firebaseConfig = {
@@ -641,11 +657,25 @@
         window.signInWithPopup = signInWithPopup;
         window.signOut = signOut;
         window.onAuthStateChanged = onAuthStateChanged;
+        window.sendPasswordResetEmail = sendPasswordResetEmail;
         
         // Firestore
-        window.db = getFirestore(app);
+        const db = getFirestore(app);
+        window.db = db;
         window.serverTimestamp = serverTimestamp;
         window.Timestamp = Timestamp;
+        window.collection = (db, path) => collection(db, path);
+        window.doc = (db, ...paths) => doc(db, ...paths);
+        window.setDoc = (ref, data, options) => setDoc(ref, data, options);
+        window.addDoc = (ref, data) => addDoc(ref, data);
+        window.getDoc = (ref) => getDoc(ref);
+        window.getDocs = (ref) => getDocs(ref);
+        window.updateDoc = (ref, data) => updateDoc(ref, data);
+        window.deleteDoc = (ref) => deleteDoc(ref);
+        window.query = (...args) => query(...args);
+        window.where = (field, op, value) => where(field, op, value);
+        window.orderBy = (field, direction) => orderBy(field, direction);
+        window.limit = (n) => limit(n);
         
         // Storage
         window.storage = getStorage(app);
