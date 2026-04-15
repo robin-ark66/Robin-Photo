@@ -50,13 +50,6 @@ async function init() {
     storage = window.storage;
     googleProvider = window.googleProvider;
     
-    console.log('Firebase initialized:', {
-        auth: typeof auth,
-        db: typeof db,
-        storage: typeof storage,
-        authMethods: auth ? Object.keys(auth).slice(0, 10) : 'null'
-    });
-    
     cacheElements();
     setupEventListeners();
     initTheme();
@@ -306,7 +299,7 @@ function toggleTheme() {
 // Authentication
 // ============================================
 function checkAuthState() {
-    auth.onAuthStateChanged(async (user) => {
+    window.onAuthStateChanged(auth, async (user) => {
         state.user = user;
         
         // Check for shared event link first
@@ -368,22 +361,15 @@ async function handleAuthSubmit(e) {
     const password = elements.authPassword.value;
     const name = elements.authName.value;
     
-    console.log('Auth object:', auth);
-    console.log('Auth methods:', auth ? Object.keys(auth) : 'auth is undefined');
-    
     try {
         showLoading();
         if (state.authMode === 'login') {
-            await auth.signInWithEmailAndPassword(email, password);
+            await window.signInWithEmailAndPassword(auth, email, password);
             showToast('Welcome back!', 'success');
         } else {
-            console.log('Creating account...');
-            const credential = await auth.createUserWithEmailAndPassword(email, password);
-            console.log('Account created:', credential.user.uid);
-            await auth.updateProfile(credential.user, { displayName: name });
-            console.log('Profile updated');
+            const credential = await window.createUserWithEmailAndPassword(auth, email, password);
+            await window.updateProfile(credential.user, { displayName: name });
             await saveUserData(credential.user);
-            console.log('User data saved');
             showToast('Account created successfully!', 'success');
         }
         closeAllModals();
@@ -398,7 +384,7 @@ async function handleAuthSubmit(e) {
 async function handleGoogleSignIn() {
     try {
         showLoading();
-        const result = await auth.signInWithPopup(googleProvider);
+        const result = await window.signInWithPopup(auth, googleProvider);
         const user = result.user;
         
         const userDoc = await db.collection('users').doc(user.uid).get();
@@ -417,7 +403,7 @@ async function handleGoogleSignIn() {
 
 async function handleLogout() {
     try {
-        await auth.signOut();
+        await window.signOut(auth);
         showToast('Logged out successfully', 'success');
         navigateTo('home');
     } catch (error) {
@@ -779,9 +765,9 @@ async function handleEventSubmit(e) {
 }
 
 async function uploadCoverImage(file) {
-    const ref = storage.ref(`covers/${state.currentUser.uid}/${Date.now()}_${file.name}`);
-    await ref.put(file);
-    return await ref.getDownloadURL();
+    const ref = window.storageRef(storage, `covers/${state.currentUser.uid}/${Date.now()}_${file.name}`);
+    await window.storagePut(ref, file);
+    return await window.storageGetDownloadURL(ref);
 }
 
 function handleCoverSelect(e) {
@@ -1030,9 +1016,9 @@ async function uploadPhotos() {
             
             // Upload to Storage
             const fileName = `${Date.now()}_${file.name}`;
-            const ref = storage.ref(`photos/${state.currentUser.uid}/${state.currentEvent.id}/${fileName}`);
-            const snapshot = await ref.put(compressedFile);
-            const downloadURL = await snapshot.ref.getDownloadURL();
+            const ref = window.storageRef(storage, `photos/${state.currentUser.uid}/${state.currentEvent.id}/${fileName}`);
+            const snapshot = await window.storagePut(ref, compressedFile);
+            const downloadURL = await window.storageGetDownloadURL(snapshot.ref);
             
             // Save to Firestore
             await db.collection('photos').add({
@@ -1221,8 +1207,8 @@ function confirmDeleteEvent() {
             for (const photoDoc of photosSnapshot.docs) {
                 // Delete from storage
                 try {
-                    const photoRef = storage.refFromURL(photoDoc.data().url);
-                    await photoRef.delete();
+                    const photoRef = window.storageRef(storage, photoDoc.data().url);
+                    await window.storageDelete(photoRef);
                 } catch (e) {
                     console.warn('Could not delete photo file:', e);
                 }
@@ -1262,8 +1248,8 @@ function confirmDeletePhoto(photoId = null) {
             
             // Delete from storage
             try {
-                const photoRef = storage.refFromURL(targetPhoto.url);
-                await photoRef.delete();
+                const photoRef = window.storageRef(storage, targetPhoto.url);
+                await window.storageDelete(photoRef);
             } catch (e) {
                 console.warn('Could not delete photo file:', e);
             }
