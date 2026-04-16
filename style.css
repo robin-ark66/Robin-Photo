@@ -944,7 +944,7 @@ img {
 .event-cover img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
 }
 
 .event-cover-placeholder {
@@ -1353,7 +1353,7 @@ img {
 .cover-preview img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
 }
 
 .cover-change-overlay {
