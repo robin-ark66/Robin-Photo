@@ -146,6 +146,7 @@ function cacheElements() {
     elements.coverPreview = document.getElementById('cover-preview');
     elements.coverPreviewImg = document.getElementById('cover-preview-img');
     elements.coverPlaceholder = document.getElementById('cover-placeholder');
+    elements.coverChangeOverlay = document.getElementById('cover-change-overlay');
     elements.eventPublic = document.getElementById('event-public');
     elements.saveEventBtn = document.getElementById('save-event-btn');
     
@@ -752,6 +753,9 @@ function openEventModal(event = null) {
             elements.coverPreviewImg.src = event.coverImage;
             elements.coverPreviewImg.classList.remove('hidden');
             elements.coverPlaceholder.classList.add('hidden');
+            elements.coverChangeOverlay.classList.remove('hidden');
+        } else {
+            elements.coverChangeOverlay.classList.add('hidden');
         }
     } else {
         state.isEditMode = false;
@@ -761,6 +765,7 @@ function openEventModal(event = null) {
         elements.coverPreviewImg.src = '';
         elements.coverPreviewImg.classList.add('hidden');
         elements.coverPlaceholder.classList.remove('hidden');
+        elements.coverChangeOverlay.classList.add('hidden');
     }
     
     openModal(elements.eventModal);
@@ -843,6 +848,7 @@ function handleCoverSelect(e) {
         elements.coverPreviewImg.src = e.target.result;
         elements.coverPreviewImg.classList.remove('hidden');
         elements.coverPlaceholder.classList.add('hidden');
+        elements.coverChangeOverlay.classList.remove('hidden');
     };
     reader.readAsDataURL(file);
 }
