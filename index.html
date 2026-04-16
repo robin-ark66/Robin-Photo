@@ -156,38 +156,33 @@
             </div>
         </section>
 
-        <!-- About Section -->
-        <section id="about-section" class="section">
-            <div class="container">
-                <div class="about-content">
-                    <div class="about-header">
-                        <img src="robin photo logo.png" alt="Robin Photo" class="about-logo" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236366f1%22 stroke-width=%222%22><rect x=%223%22 y=%223%22 width=%2218%22 height=%2218%22 rx=%222%22/><circle cx=%228.5%22 cy=%228.5%22 r=%221.5%22/><polyline points=%2221 15 16 10 5 21%22/></svg>'">
-                        <h1 class="about-title">About Robin Photo</h1>
-                    </div>
-                    <div class="about-story">
-                        <p class="about-lead">Capturing moments, preserving memories, one frame at a time.</p>
-                        <p>Welcome to Robin Photo, a personal photography portfolio and sharing platform. Here, every photograph tells a story — from breathtaking landscapes to intimate portraits, from spontaneous adventures to carefully crafted compositions.</p>
-                        <p>Photography is not just about capturing images; it's about freezing emotions, preserving laughter, and holding onto moments that would otherwise slip away into memory. Each shot is a labor of love, patience, and an eye for the extraordinary in the ordinary.</p>
-                        <p>Whether you're here to explore the gallery, share your own moments, or simply appreciate the art of photography, I'm glad you've stopped by. Feel free to browse, share, and connect.</p>
-                        <p class="about-signature">— Robin</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
         <!-- Dashboard Section -->
         <section id="dashboard-section" class="section hidden">
             <div class="container">
-                <div class="section-header">
-                    <h2 class="section-title">Dashboard</h2>
-                    <button id="create-event-btn" class="btn btn-primary">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <line x1="12" y1="5" x2="12" y2="19"/>
-                            <line x1="5" y1="12" x2="19" y2="12"/>
-                        </svg>
-                        Create Event
-                    </button>
+                <!-- About / Hero Section -->
+                <div class="about-hero">
+                    <div class="about-hero-content">
+                        <img src="robin photo logo.png" alt="Robin Photo" class="about-hero-logo" onerror="this.style.display='none'">
+                        <h1 class="about-hero-title">Robin Photo</h1>
+                        <p class="about-hero-tagline">Capturing moments, preserving memories, one frame at a time.</p>
+                        <div class="about-hero-story">
+                            <p>Welcome to Robin Photo, a personal photography portfolio and sharing platform. Here, every photograph tells a story — from breathtaking landscapes to intimate portraits, from spontaneous adventures to carefully crafted compositions.</p>
+                            <p>Photography is not just about capturing images; it's about freezing emotions, preserving laughter, and holding onto moments that would otherwise slip away into memory.</p>
+                        </div>
+                    </div>
                 </div>
+
+                <div id="dashboard-content" class="dashboard-content hidden">
+                    <div class="section-header">
+                        <h2 class="section-title">Dashboard</h2>
+                        <button id="create-event-btn" class="btn btn-primary">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"/>
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                            </svg>
+                            Create Event
+                        </button>
+                    </div>
                 
                 <div class="stats-grid">
                     <div class="stat-card">
@@ -255,6 +250,7 @@
                 <div class="recent-events">
                     <h3 class="subsection-title">Recent Events</h3>
                     <div id="recent-events-list" class="events-grid"></div>
+                </div>
                 </div>
             </div>
         </section>

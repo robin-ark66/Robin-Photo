@@ -331,20 +331,24 @@ function checkAuthState() {
         } else {
             state.currentUser = null;
             updateAuthUI(null);
-            showSection('about');
+            showSection('dashboard');
         }
     });
 }
 
 function updateAuthUI(user) {
+    const dashboardContent = document.getElementById('dashboard-content');
+    
     if (user) {
         elements.authButtons.classList.add('hidden');
         elements.userMenu.classList.remove('hidden');
         elements.userName.textContent = user.displayName || user.email;
         elements.userAvatar.src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || user.email)}&background=6366f1&color=fff`;
+        if (dashboardContent) dashboardContent.classList.remove('hidden');
     } else {
         elements.authButtons.classList.remove('hidden');
         elements.userMenu.classList.add('hidden');
+        if (dashboardContent) dashboardContent.classList.add('hidden');
     }
 }
 
@@ -513,7 +517,7 @@ function navigateTo(section) {
 }
 
 function showSection(sectionName) {
-    const sections = ['auth', 'dashboard', 'events', 'event-detail', 'public-event', 'about'];
+    const sections = ['auth', 'dashboard', 'events', 'event-detail', 'public-event'];
     sections.forEach(section => {
         const el = document.getElementById(`${section}-section`);
         if (el) {

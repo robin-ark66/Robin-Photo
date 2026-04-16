@@ -1696,69 +1696,68 @@ img {
 }
 
 /* ============================================
-   About Section
+   About Hero Section
    ============================================ */
-#about-section {
-    padding: var(--space-2xl) var(--space-md);
-}
-
-.about-content {
-    max-width: 800px;
-    margin: 0 auto;
-    text-align: center;
-}
-
-.about-header {
+.about-hero {
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+    border-radius: var(--radius-xl);
+    padding: var(--space-2xl);
     margin-bottom: var(--space-2xl);
+    text-align: center;
+    color: white;
 }
 
-.about-logo {
-    height: 150px;
+.about-hero-content {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.about-hero-logo {
+    height: 120px;
     width: auto;
     object-fit: contain;
-    margin-bottom: var(--space-xl);
+    margin-bottom: var(--space-lg);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
+    background: white;
+    padding: var(--space-sm);
 }
 
-.about-title {
+.about-hero-title {
     font-size: var(--font-size-3xl);
-    color: var(--text-primary);
+    font-weight: 700;
+    margin-bottom: var(--space-md);
+    color: white;
+}
+
+.about-hero-tagline {
+    font-size: var(--font-size-xl);
+    font-weight: 500;
+    margin-bottom: var(--space-xl);
+    opacity: 0.95;
+}
+
+.about-hero-story {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+    text-align: left;
+}
+
+.about-hero-story p {
+    color: rgba(255, 255, 255, 0.95);
+    line-height: 1.7;
     margin-bottom: var(--space-md);
 }
 
-.about-story {
-    text-align: left;
-    background: var(--bg-secondary);
-    padding: var(--space-2xl);
-    border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-md);
+.about-hero-story p:last-child {
+    margin-bottom: 0;
 }
 
-.about-lead {
-    font-size: var(--font-size-xl);
-    font-weight: 600;
-    color: var(--color-primary);
-    margin-bottom: var(--space-xl);
-    text-align: center;
-    font-style: italic;
-}
-
-.about-story p {
-    color: var(--text-secondary);
-    line-height: 1.8;
-    margin-bottom: var(--space-lg);
-}
-
-.about-story p:last-of-type {
-    margin-bottom: var(--space-xl);
-}
-
-.about-signature {
-    font-size: var(--font-size-lg);
-    font-style: italic;
-    color: var(--text-primary);
-    text-align: right;
+/* Dashboard Content Container */
+.dashboard-content {
+    margin-top: var(--space-2xl);
 }
 
 /* ============================================
@@ -1781,16 +1780,25 @@ img {
         display: none;
     }
     
-    .about-logo {
-        height: 100px;
+    .about-hero {
+        padding: var(--space-xl);
+        margin-bottom: var(--space-xl);
     }
     
-    .about-title {
+    .about-hero-logo {
+        height: 80px;
+    }
+    
+    .about-hero-title {
         font-size: var(--font-size-2xl);
     }
     
-    .about-story {
-        padding: var(--space-xl);
+    .about-hero-tagline {
+        font-size: var(--font-size-lg);
+    }
+    
+    .about-hero-story {
+        padding: var(--space-lg);
     }
     
     .user-name {
