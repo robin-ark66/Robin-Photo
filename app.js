@@ -242,7 +242,11 @@ function setupEventListeners() {
     elements.downloadAllBtn?.addEventListener('click', downloadAllPhotos);
     
     // File Upload
-    elements.dropzone?.addEventListener('click', () => elements.fileInput.click());
+    elements.dropzone?.addEventListener('click', () => {
+        console.log('Dropzone clicked');
+        console.log('fileInput element:', elements.fileInput);
+        elements.fileInput.click();
+    });
     elements.fileInput?.addEventListener('change', handleFileSelect);
     elements.dropzone?.addEventListener('dragover', handleDragOver);
     elements.dropzone?.addEventListener('dragleave', handleDragLeave);
@@ -327,7 +331,7 @@ function checkAuthState() {
         } else {
             state.currentUser = null;
             updateAuthUI(null);
-            showSection('auth');
+            showSection('about');
         }
     });
 }
@@ -346,6 +350,7 @@ function updateAuthUI(user) {
 
 function showAuthForm(mode = 'login') {
     state.authMode = mode;
+    showSection('auth');
     elements.resetPasswordForm.classList.add('hidden');
     elements.authForm.classList.remove('hidden');
     elements.authDivider?.classList.remove('hidden');
@@ -508,7 +513,7 @@ function navigateTo(section) {
 }
 
 function showSection(sectionName) {
-    const sections = ['auth', 'dashboard', 'events', 'event-detail', 'public-event'];
+    const sections = ['auth', 'dashboard', 'events', 'event-detail', 'public-event', 'about'];
     sections.forEach(section => {
         const el = document.getElementById(`${section}-section`);
         if (el) {
@@ -1001,6 +1006,8 @@ function renderPhotos() {
 // File Upload
 // ============================================
 function toggleUploadArea() {
+    console.log('Toggle upload area called');
+    console.log('uploadArea element:', elements.uploadArea);
     elements.uploadArea.classList.toggle('hidden');
     if (!elements.uploadArea.classList.contains('hidden')) {
         elements.dropzone.scrollIntoView({ behavior: 'smooth' });
@@ -1026,6 +1033,8 @@ function handleDrop(e) {
 }
 
 function handleFileSelect(e) {
+    console.log('File select triggered');
+    console.log('Files:', e.target.files);
     const files = Array.from(e.target.files);
     handleFiles(files);
 }
@@ -1066,7 +1075,14 @@ function renderUploadPreview() {
 }
 
 async function uploadPhotos() {
-    if (state.selectedFiles.length === 0) return;
+    console.log('Upload photos called');
+    console.log('Selected files:', state.selectedFiles);
+    console.log('currentEvent:', state.currentEvent);
+    
+    if (state.selectedFiles.length === 0) {
+        console.log('No files selected');
+        return;
+    }
     
     elements.uploadProgress.classList.remove('hidden');
     const totalFiles = state.selectedFiles.length;

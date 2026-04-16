@@ -184,9 +184,9 @@ img {
 .nav-logo {
     display: flex;
     align-items: center;
-    gap: var(--space-sm);
+    gap: var(--space-md);
     font-weight: 700;
-    font-size: var(--font-size-xl);
+    font-size: var(--font-size-2xl);
     color: var(--color-primary);
     transition: opacity var(--transition-fast);
 }
@@ -195,9 +195,19 @@ img {
     opacity: 0.8;
 }
 
+.logo-img {
+    height: 50px;
+    width: auto;
+    object-fit: contain;
+}
+
 .logo-icon {
-    width: 32px;
-    height: 32px;
+    width: 40px;
+    height: 40px;
+}
+
+.logo-text {
+    display: none;
 }
 
 .nav-actions {
@@ -1686,6 +1696,72 @@ img {
 }
 
 /* ============================================
+   About Section
+   ============================================ */
+#about-section {
+    padding: var(--space-2xl) var(--space-md);
+}
+
+.about-content {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.about-header {
+    margin-bottom: var(--space-2xl);
+}
+
+.about-logo {
+    height: 150px;
+    width: auto;
+    object-fit: contain;
+    margin-bottom: var(--space-xl);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+}
+
+.about-title {
+    font-size: var(--font-size-3xl);
+    color: var(--text-primary);
+    margin-bottom: var(--space-md);
+}
+
+.about-story {
+    text-align: left;
+    background: var(--bg-secondary);
+    padding: var(--space-2xl);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-md);
+}
+
+.about-lead {
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+    color: var(--color-primary);
+    margin-bottom: var(--space-xl);
+    text-align: center;
+    font-style: italic;
+}
+
+.about-story p {
+    color: var(--text-secondary);
+    line-height: 1.8;
+    margin-bottom: var(--space-lg);
+}
+
+.about-story p:last-of-type {
+    margin-bottom: var(--space-xl);
+}
+
+.about-signature {
+    font-size: var(--font-size-lg);
+    font-style: italic;
+    color: var(--text-primary);
+    text-align: right;
+}
+
+/* ============================================
    Responsive Design
    ============================================ */
 @media (max-width: 768px) {
@@ -1693,8 +1769,28 @@ img {
         padding: var(--space-md);
     }
     
+    .logo-img {
+        height: 40px;
+    }
+    
+    .nav-logo {
+        font-size: var(--font-size-lg);
+    }
+    
     .nav-logo span {
         display: none;
+    }
+    
+    .about-logo {
+        height: 100px;
+    }
+    
+    .about-title {
+        font-size: var(--font-size-2xl);
+    }
+    
+    .about-story {
+        padding: var(--space-xl);
     }
     
     .user-name {
