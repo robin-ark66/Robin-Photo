@@ -1511,6 +1511,10 @@ async function loadSharedEvent(eventId) {
     try {
         showLoading();
         
+        // Hide auth buttons for shared events
+        elements.authButtons.classList.add('hidden');
+        elements.userMenu.classList.add('hidden');
+        
         const eventDoc = await window.getDoc(window.doc(db, 'events', eventId));
         
         if (!eventDoc.exists()) {
@@ -1523,6 +1527,18 @@ async function loadSharedEvent(eventId) {
         if (!eventData.isPublic && eventData.userId !== state.currentUser?.uid) {
             showToast('This event is private', 'error');
             return;
+        }
+        
+        // Show event cover image
+        const publicCoverImg = document.getElementById('public-event-cover-img');
+        const publicCoverPlaceholder = document.getElementById('public-event-cover-placeholder');
+        if (eventData.coverImage) {
+            publicCoverImg.src = eventData.coverImage;
+            publicCoverImg.classList.remove('hidden');
+            publicCoverPlaceholder.classList.add('hidden');
+        } else {
+            publicCoverImg.classList.add('hidden');
+            publicCoverPlaceholder.classList.remove('hidden');
         }
         
         elements.publicEventName.textContent = eventData.name;
