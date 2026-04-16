@@ -93,6 +93,10 @@
     --color-primary-light: #a5b4fc;
 }
 
+.nav-logo .logo-text {
+    color: var(--color-primary) !important;
+}
+
 /* ============================================
    Reset & Base Styles
    ============================================ */
@@ -207,8 +211,10 @@ img {
 }
 
 .logo-text {
-    display: inline;
-    color: var(--color-primary);
+    display: inline !important;
+    color: var(--color-primary) !important;
+    font-weight: 700;
+    font-size: var(--font-size-2xl);
 }
 
 .nav-actions {
