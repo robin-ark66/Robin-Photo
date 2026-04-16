@@ -1701,22 +1701,22 @@ img {
 .about-hero {
     background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
     border-radius: var(--radius-xl);
-    padding: var(--space-2xl);
-    margin-bottom: var(--space-2xl);
-    text-align: center;
+    padding: var(--space-xl);
+    margin-bottom: var(--space-xl);
     color: white;
+    display: flex;
+    align-items: stretch;
+    gap: var(--space-xl);
 }
 
-.about-hero-content {
-    max-width: 700px;
-    margin: 0 auto;
+.about-hero-left {
+    flex: 0 0 auto;
 }
 
 .about-hero-logo {
-    height: 120px;
+    height: 180px;
     width: auto;
     object-fit: contain;
-    margin: 0 auto var(--space-lg);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
     background: white;
@@ -1724,34 +1724,40 @@ img {
     display: block;
 }
 
+.about-hero-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
 .about-hero-title {
-    font-size: var(--font-size-3xl);
+    font-size: var(--font-size-2xl);
     font-weight: 700;
-    margin-bottom: var(--space-md);
+    margin-bottom: var(--space-sm);
     color: white;
 }
 
 .about-hero-tagline {
-    font-size: var(--font-size-xl);
+    font-size: var(--font-size-base);
     font-weight: 500;
-    margin-bottom: var(--space-xl);
+    margin-bottom: var(--space-md);
     opacity: 0.95;
 }
 
 .about-hero-story {
     background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(10px);
-    border-radius: var(--radius-lg);
-    padding: var(--space-xl);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
     text-align: left;
-    max-width: 50%;
-    margin: 0 auto;
 }
 
 .about-hero-story p {
     color: rgba(255, 255, 255, 0.95);
-    line-height: 1.7;
-    margin-bottom: var(--space-md);
+    line-height: 1.5;
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--space-sm);
 }
 
 .about-hero-story p:last-child {
@@ -1760,7 +1766,7 @@ img {
 
 /* Dashboard Content Container */
 .dashboard-content {
-    margin-top: var(--space-2xl);
+    margin-top: var(--space-xl);
 }
 
 /* ============================================
@@ -1784,25 +1790,23 @@ img {
     }
     
     .about-hero {
-        padding: var(--space-xl);
-        margin-bottom: var(--space-xl);
+        flex-direction: column;
+        padding: var(--space-lg);
     }
     
     .about-hero-logo {
-        height: 80px;
+        height: 120px;
+        margin: 0 auto;
     }
     
     .about-hero-title {
-        font-size: var(--font-size-2xl);
+        font-size: var(--font-size-xl);
+        text-align: center;
     }
     
     .about-hero-tagline {
-        font-size: var(--font-size-lg);
-    }
-    
-    .about-hero-story {
-        padding: var(--space-lg);
-        max-width: 100%;
+        font-size: var(--font-size-sm);
+        text-align: center;
     }
     
     .user-name {
