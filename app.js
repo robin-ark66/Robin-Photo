@@ -238,7 +238,6 @@ function setupEventListeners() {
     });
     elements.shareEventBtn?.addEventListener('click', openShareModal);
     elements.editEventBtn?.addEventListener('click', () => {
-        console.log('Edit button clicked', state.currentEvent);
         openEventModal(state.currentEvent);
     });
     elements.deleteEventBtn?.addEventListener('click', () => confirmDeleteEvent());
@@ -247,8 +246,6 @@ function setupEventListeners() {
     
     // File Upload
     elements.dropzone?.addEventListener('click', () => {
-        console.log('Dropzone clicked');
-        console.log('fileInput element:', elements.fileInput);
         elements.fileInput.click();
     });
     elements.fileInput?.addEventListener('change', handleFileSelect);
@@ -743,8 +740,6 @@ async function loadPhotoCounts() {
 // Event Modal
 // ============================================
 function openEventModal(event = null) {
-    console.log('openEventModal called', event);
-    
     if (event) {
         state.isEditMode = true;
         state.editingEventId = event.id;
@@ -806,18 +801,11 @@ async function handleEventSubmit(e) {
         
         let coverImage = '';
         
-        console.log('selectedCoverFile:', elements.selectedCoverFile);
-        console.log('isEditMode:', state.isEditMode);
-        console.log('currentEvent:', state.currentEvent);
-        
         // Upload cover image if selected
         if (elements.selectedCoverFile) {
-            console.log('Uploading new cover image...');
             coverImage = await uploadCoverImage(elements.selectedCoverFile);
-            console.log('Cover image uploaded:', coverImage);
         } else if (state.isEditMode && state.currentEvent?.coverImage) {
             coverImage = state.currentEvent.coverImage;
-            console.log('Keeping existing cover image:', coverImage);
         }
         
         const eventData = {
@@ -914,7 +902,6 @@ function handleCoverSelect(e) {
     const file = e.target.files[0];
     if (!file) return;
     
-    console.log('Cover file selected:', file);
     elements.selectedCoverFile = file;
     
     const reader = new FileReader();
@@ -1086,8 +1073,6 @@ function renderPhotos() {
 // File Upload
 // ============================================
 function toggleUploadArea() {
-    console.log('Toggle upload area called');
-    console.log('uploadArea element:', elements.uploadArea);
     elements.uploadArea.classList.toggle('hidden');
     if (!elements.uploadArea.classList.contains('hidden')) {
         elements.dropzone.scrollIntoView({ behavior: 'smooth' });
@@ -1113,8 +1098,6 @@ function handleDrop(e) {
 }
 
 function handleFileSelect(e) {
-    console.log('File select triggered');
-    console.log('Files:', e.target.files);
     const files = Array.from(e.target.files);
     handleFiles(files);
 }
@@ -1155,14 +1138,7 @@ function renderUploadPreview() {
 }
 
 async function uploadPhotos() {
-    console.log('Upload photos called');
-    console.log('Selected files:', state.selectedFiles);
-    console.log('currentEvent:', state.currentEvent);
-    
-    if (state.selectedFiles.length === 0) {
-        console.log('No files selected');
-        return;
-    }
+    if (state.selectedFiles.length === 0) return;
     
     elements.uploadProgress.classList.remove('hidden');
     const totalFiles = state.selectedFiles.length;
@@ -1251,7 +1227,6 @@ async function compressImage(file) {
 }
 
 async function uploadToCloudinary(file) {
-    console.log('Uploading to Cloudinary:', file);
     const formData = new FormData();
     formData.append('file', file);
     formData.append('upload_preset', window.CLOUDINARY_UPLOAD_PRESET);
@@ -1265,10 +1240,8 @@ async function uploadToCloudinary(file) {
     );
     
     const data = await response.json();
-    console.log('Cloudinary response:', data);
     
     if (!response.ok) {
-        console.error('Cloudinary error:', data);
         throw new Error(data.error?.message || 'Cloudinary upload failed');
     }
     
@@ -1483,7 +1456,6 @@ function handleFilterChange(e) {
 // Modal Helpers
 // ============================================
 function openModal(modal) {
-    console.log('Opening modal:', modal);
     modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
 }
