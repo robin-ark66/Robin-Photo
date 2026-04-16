@@ -788,7 +788,8 @@ async function handleEventSubmit(e) {
     
     const name = elements.eventName.value.trim();
     const description = elements.eventDescription.value.trim();
-    const date = elements.eventDate.value ? new Date(elements.eventDate.value) : null;
+    const dateInput = elements.eventDate.value;
+    const date = dateInput ? new Date(dateInput) : null;
     const isPublic = elements.eventPublic.checked;
     
     if (!name) {
@@ -801,20 +802,19 @@ async function handleEventSubmit(e) {
         
         let coverImage = '';
         
-        // Upload cover image if selected
         if (elements.selectedCoverFile) {
             coverImage = await uploadCoverImage(elements.selectedCoverFile);
-        } else if (state.isEditMode && state.currentEvent?.coverImage) {
+        } else if (state.isEditMode && state.currentEvent && state.currentEvent.coverImage) {
             coverImage = state.currentEvent.coverImage;
         }
         
         const eventData = {
             userId: state.currentUser.uid,
-            name,
-            description,
+            name: name,
+            description: description,
             date: date ? window.Timestamp.fromDate(date) : null,
-            isPublic,
-            coverImage,
+            isPublic: isPublic,
+            coverImage: coverImage,
             updatedAt: window.serverTimestamp()
         };
         
@@ -830,56 +830,6 @@ async function handleEventSubmit(e) {
         closeAllModals();
         elements.selectedCoverFile = null;
         
-        // Refresh the current view
-        if (state.currentEvent) {
-            await loadEvents();
-        }
-        await loadEvents();
-        await loadDashboardData();
-        
-    } catch (error) {
-        console.error('Error saving event:', error);
-        showToast('Failed to save event', 'error');
-    } finally {
-        hideLoading();
-    }
-}
-    
-    try {
-        showLoading();
-        
-        let coverImage = '';
-        
-        // Upload cover image if selected
-        if (elements.selectedCoverFile) {
-            coverImage = await uploadCoverImage(elements.selectedCoverFile);
-        } else if (state.isEditMode && state.currentEvent?.coverImage) {
-            coverImage = state.currentEvent.coverImage;
-        }
-        
-        const eventData = {
-            userId: state.currentUser.uid,
-            name,
-            description,
-            date: date ? window.Timestamp.fromDate(date) : null,
-            isPublic,
-            coverImage,
-            updatedAt: window.serverTimestamp()
-        };
-        
-        if (state.isEditMode) {
-            await window.updateDoc(window.doc(db, 'events', state.editingEventId), eventData);
-            showToast('Event updated successfully!', 'success');
-        } else {
-            eventData.createdAt = window.serverTimestamp();
-            await window.addDoc(window.collection(db, 'events'), eventData);
-            showToast('Event created successfully!', 'success');
-        }
-        
-        closeAllModals();
-        elements.selectedCoverFile = null;
-        
-        // Refresh the current view
         if (state.currentEvent) {
             await loadEvents();
         }
