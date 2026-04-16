@@ -806,6 +806,62 @@ async function handleEventSubmit(e) {
         
         let coverImage = '';
         
+        console.log('selectedCoverFile:', elements.selectedCoverFile);
+        console.log('isEditMode:', state.isEditMode);
+        console.log('currentEvent:', state.currentEvent);
+        
+        // Upload cover image if selected
+        if (elements.selectedCoverFile) {
+            console.log('Uploading new cover image...');
+            coverImage = await uploadCoverImage(elements.selectedCoverFile);
+            console.log('Cover image uploaded:', coverImage);
+        } else if (state.isEditMode && state.currentEvent?.coverImage) {
+            coverImage = state.currentEvent.coverImage;
+            console.log('Keeping existing cover image:', coverImage);
+        }
+        
+        const eventData = {
+            userId: state.currentUser.uid,
+            name,
+            description,
+            date: date ? window.Timestamp.fromDate(date) : null,
+            isPublic,
+            coverImage,
+            updatedAt: window.serverTimestamp()
+        };
+        
+        if (state.isEditMode) {
+            await window.updateDoc(window.doc(db, 'events', state.editingEventId), eventData);
+            showToast('Event updated successfully!', 'success');
+        } else {
+            eventData.createdAt = window.serverTimestamp();
+            await window.addDoc(window.collection(db, 'events'), eventData);
+            showToast('Event created successfully!', 'success');
+        }
+        
+        closeAllModals();
+        elements.selectedCoverFile = null;
+        
+        // Refresh the current view
+        if (state.currentEvent) {
+            await loadEvents();
+        }
+        await loadEvents();
+        await loadDashboardData();
+        
+    } catch (error) {
+        console.error('Error saving event:', error);
+        showToast('Failed to save event', 'error');
+    } finally {
+        hideLoading();
+    }
+}
+    
+    try {
+        showLoading();
+        
+        let coverImage = '';
+        
         // Upload cover image if selected
         if (elements.selectedCoverFile) {
             coverImage = await uploadCoverImage(elements.selectedCoverFile);
@@ -858,6 +914,7 @@ function handleCoverSelect(e) {
     const file = e.target.files[0];
     if (!file) return;
     
+    console.log('Cover file selected:', file);
     elements.selectedCoverFile = file;
     
     const reader = new FileReader();
@@ -1194,6 +1251,7 @@ async function compressImage(file) {
 }
 
 async function uploadToCloudinary(file) {
+    console.log('Uploading to Cloudinary:', file);
     const formData = new FormData();
     formData.append('file', file);
     formData.append('upload_preset', window.CLOUDINARY_UPLOAD_PRESET);
@@ -1207,6 +1265,7 @@ async function uploadToCloudinary(file) {
     );
     
     const data = await response.json();
+    console.log('Cloudinary response:', data);
     
     if (!response.ok) {
         console.error('Cloudinary error:', data);
