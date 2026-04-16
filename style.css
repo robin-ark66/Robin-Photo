@@ -217,6 +217,18 @@ img {
     font-size: var(--font-size-2xl);
 }
 
+.logo-wrapper {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+.logo-tagline {
+    font-size: var(--font-size-xs);
+    color: var(--text-secondary);
+    font-weight: 400;
+}
+
 .nav-actions {
     display: flex;
     align-items: center;
@@ -1047,6 +1059,8 @@ img {
     height: 100%;
     object-fit: cover;
     transition: transform var(--transition-base);
+    pointer-events: none;
+    display: block;
 }
 
 .photo-card:hover img {
@@ -1510,6 +1524,16 @@ img {
     display: flex;
     flex-direction: column;
     align-items: center;
+    cursor: default;
+}
+
+.lightbox-content img {
+    max-width: 100%;
+    max-height: calc(90vh - 60px);
+    object-fit: contain;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    pointer-events: none;
 }
 
 .lightbox-content img {

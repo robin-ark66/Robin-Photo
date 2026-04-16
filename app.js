@@ -1547,6 +1547,10 @@ async function loadSharedEvent(eventId) {
         
         showSection('public-event');
         
+        // Hide caption input and action buttons for public view
+        const lightboxCaption = document.querySelector('.lightbox-caption');
+        if (lightboxCaption) lightboxCaption.style.display = 'none';
+        
         // Load public photos
         const photosQuery = window.query(
             window.collection(db, 'photos'),
@@ -1575,10 +1579,11 @@ async function loadSharedEvent(eventId) {
                 </div>
             `).join('');
             
+            state.currentPhotos = photos;
+            
             elements.publicPhotosGrid.querySelectorAll('.photo-card').forEach(card => {
                 card.addEventListener('click', () => {
                     openLightbox(parseInt(card.dataset.index));
-                    state.currentPhotos = photos;
                 });
             });
         }
