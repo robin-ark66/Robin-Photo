@@ -751,7 +751,18 @@ function openEventModal(event = null) {
         elements.eventModalTitle.textContent = 'Edit Event';
         elements.eventName.value = event.name || '';
         elements.eventDescription.value = event.description || '';
-        elements.eventDate.value = event.date ? new Date(event.date).toISOString().split('T')[0] : '';
+        
+        // Handle Firestore Timestamp properly
+        let dateValue = '';
+        if (event.date) {
+            try {
+                const dateObj = event.date.toDate ? event.date.toDate() : new Date(event.date);
+                dateValue = dateObj.toISOString().split('T')[0];
+            } catch (e) {
+                dateValue = '';
+            }
+        }
+        elements.eventDate.value = dateValue;
         elements.eventPublic.checked = event.isPublic || false;
         
         if (event.coverImage) {
