@@ -1371,7 +1371,11 @@ img {
     color: white;
     opacity: 0;
     transition: opacity var(--transition-fast);
-    pointer-events: none;
+    cursor: pointer;
+}
+
+.cover-change-overlay:hover {
+    opacity: 1;
 }
 
 .cover-change-overlay svg {

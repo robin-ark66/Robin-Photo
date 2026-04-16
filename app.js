@@ -237,7 +237,10 @@ function setupEventListeners() {
         btn.addEventListener('click', () => navigateTo('events'));
     });
     elements.shareEventBtn?.addEventListener('click', openShareModal);
-    elements.editEventBtn?.addEventListener('click', () => openEventModal(state.currentEvent));
+    elements.editEventBtn?.addEventListener('click', () => {
+        console.log('Edit button clicked', state.currentEvent);
+        openEventModal(state.currentEvent);
+    });
     elements.deleteEventBtn?.addEventListener('click', () => confirmDeleteEvent());
     elements.uploadPhotosBtn?.addEventListener('click', toggleUploadArea);
     elements.downloadAllBtn?.addEventListener('click', downloadAllPhotos);
@@ -740,6 +743,8 @@ async function loadPhotoCounts() {
 // Event Modal
 // ============================================
 function openEventModal(event = null) {
+    console.log('openEventModal called', event);
+    
     if (event) {
         state.isEditMode = true;
         state.editingEventId = event.id;
@@ -756,6 +761,7 @@ function openEventModal(event = null) {
             elements.coverChangeOverlay.classList.remove('hidden');
         } else {
             elements.coverChangeOverlay.classList.add('hidden');
+            elements.coverPlaceholder.classList.remove('hidden');
         }
     } else {
         state.isEditMode = false;
@@ -1407,6 +1413,7 @@ function handleFilterChange(e) {
 // Modal Helpers
 // ============================================
 function openModal(modal) {
+    console.log('Opening modal:', modal);
     modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
 }
