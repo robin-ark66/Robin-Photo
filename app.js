@@ -29,7 +29,8 @@ const state = {
     editingEventId: null,
     searchQuery: '',
     sortBy: 'newest',
-    filterVisibility: 'all'
+    filterVisibility: 'all',
+    isPublicView: false
 };
 
 // DOM Elements Cache
@@ -325,10 +326,12 @@ function checkAuthState() {
         
         if (user) {
             state.currentUser = user;
+            state.isPublicView = false;
             await loadUserData(user);
             updateAuthUI(user);
             showSection('dashboard');
             await loadDashboardData();
+            resetLightboxUI();
         } else {
             state.currentUser = null;
             updateAuthUI(null);
@@ -1268,6 +1271,19 @@ function closeLightbox() {
     document.body.style.overflow = '';
 }
 
+function resetLightboxUI() {
+    state.isPublicView = false;
+    const lightboxCaption = document.querySelector('.lightbox-caption');
+    if (lightboxCaption) lightboxCaption.style.display = '';
+    const lightboxDelete = document.getElementById('lightbox-delete');
+    if (lightboxDelete) lightboxDelete.style.display = '';
+    const lightboxCaptionInput = document.getElementById('lightbox-caption-input');
+    if (lightboxCaptionInput) {
+        lightboxCaptionInput.style.display = '';
+        lightboxCaptionInput.placeholder = 'Add a caption...';
+    }
+}
+
 function navigateLightbox(direction) {
     const newIndex = state.currentPhotoIndex + direction;
     if (newIndex >= 0 && newIndex < state.currentPhotos.length) {
@@ -1547,9 +1563,16 @@ async function loadSharedEvent(eventId) {
         
         showSection('public-event');
         
-        // Hide caption input and action buttons for public view
+        // Show download button for public view
         const lightboxCaption = document.querySelector('.lightbox-caption');
-        if (lightboxCaption) lightboxCaption.style.display = 'none';
+        if (lightboxCaption) lightboxCaption.style.display = 'flex';
+        const lightboxDownload = document.getElementById('lightbox-download');
+        if (lightboxDownload) lightboxDownload.style.display = 'flex';
+        const lightboxDelete = document.getElementById('lightbox-delete');
+        if (lightboxDelete) lightboxDelete.style.display = 'none';
+        
+        // Mark as public view
+        state.isPublicView = true;
         
         // Load public photos
         const photosQuery = window.query(
