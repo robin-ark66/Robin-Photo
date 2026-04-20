@@ -177,6 +177,7 @@ function cacheElements() {
     elements.publicEventDate = document.getElementById('public-event-date');
     elements.publicPhotosGrid = document.getElementById('public-photos-grid');
     elements.emptyPublicPhotos = document.getElementById('empty-public-photos');
+    elements.publicSortSelect = document.getElementById('public-sort-select');
     
     // Toast Container
     elements.toastContainer = document.getElementById('toast-container');
@@ -282,6 +283,13 @@ function setupEventListeners() {
     
     // Keyboard Navigation
     document.addEventListener('keydown', handleKeyboardNav);
+    
+    // Public View Sort
+    elements.publicSortSelect?.addEventListener('change', () => {
+        const sortBy = elements.publicSortSelect.value;
+        const sortedPhotos = sortPublicPhotos(state.currentPhotos, sortBy);
+        renderPublicPhotos(sortedPhotos);
+    });
     
     // Modal Close Buttons
     document.querySelectorAll('[data-close-modal]').forEach(btn => {
@@ -1284,6 +1292,32 @@ function resetLightboxUI() {
     }
 }
 
+function sortPublicPhotos(photos, sortBy) {
+    return [...photos].sort((a, b) => {
+        const dateA = a.createdAt?.seconds || 0;
+        const dateB = b.createdAt?.seconds || 0;
+        return sortBy === 'newest' ? dateB - dateA : dateA - dateB;
+    });
+}
+
+function renderPublicPhotos(photos) {
+    state.currentPhotos = photos;
+    elements.publicPhotosGrid.classList.remove('hidden');
+    elements.emptyPublicPhotos.classList.add('hidden');
+    elements.publicPhotosGrid.innerHTML = photos.map((photo, index) => `
+        <div class="photo-card" data-index="${index}">
+            <img src="${photo.url}" alt="${photo.caption || 'Photo'}" loading="lazy">
+            ${photo.caption ? `<div class="photo-card-overlay"><p class="photo-card-caption">${escapeHtml(photo.caption)}</p></div>` : ''}
+        </div>
+    `).join('');
+    
+    elements.publicPhotosGrid.querySelectorAll('.photo-card').forEach(card => {
+        card.addEventListener('click', () => {
+            openLightbox(parseInt(card.dataset.index));
+        });
+    });
+}
+
 function navigateLightbox(direction) {
     const newIndex = state.currentPhotoIndex + direction;
     if (newIndex >= 0 && newIndex < state.currentPhotos.length) {
@@ -1593,22 +1627,10 @@ async function loadSharedEvent(eventId) {
             elements.publicPhotosGrid.classList.add('hidden');
             elements.emptyPublicPhotos.classList.remove('hidden');
         } else {
-            elements.publicPhotosGrid.classList.remove('hidden');
-            elements.emptyPublicPhotos.classList.add('hidden');
-            elements.publicPhotosGrid.innerHTML = photos.map((photo, index) => `
-                <div class="photo-card" data-index="${index}">
-                    <img src="${photo.url}" alt="${photo.caption || 'Photo'}" loading="lazy">
-                    ${photo.caption ? `<div class="photo-card-overlay"><p class="photo-card-caption">${escapeHtml(photo.caption)}</p></div>` : ''}
-                </div>
-            `).join('');
-            
             state.currentPhotos = photos;
-            
-            elements.publicPhotosGrid.querySelectorAll('.photo-card').forEach(card => {
-                card.addEventListener('click', () => {
-                    openLightbox(parseInt(card.dataset.index));
-                });
-            });
+            const sortBy = elements.publicSortSelect?.value || 'newest';
+            const sortedPhotos = sortPublicPhotos(photos, sortBy);
+            renderPublicPhotos(sortedPhotos);
         }
         
     } catch (error) {
