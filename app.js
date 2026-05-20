@@ -322,28 +322,35 @@ function toggleTheme() {
 // ============================================
 function checkAuthState() {
     window.onAuthStateChanged(auth, async (user) => {
-        state.user = user;
-        
-        // Check for shared event link first
-        const sharedEventId = new URLSearchParams(window.location.search).get('event');
-        
-        if (sharedEventId) {
-            await loadSharedEvent(sharedEventId);
-            return;
-        }
-        
-        if (user) {
-            state.currentUser = user;
-            state.isPublicView = false;
-            await loadUserData(user);
-            updateAuthUI(user);
-            showSection('dashboard');
-            await loadDashboardData();
-            resetLightboxUI();
-        } else {
-            state.currentUser = null;
-            updateAuthUI(null);
-            showSection('dashboard');
+        try {
+            state.user = user;
+            
+            // Check for shared event link first
+            const sharedEventId = new URLSearchParams(window.location.search).get('event');
+            
+            if (sharedEventId) {
+                await loadSharedEvent(sharedEventId);
+                return;
+            }
+            
+            if (user) {
+                state.currentUser = user;
+                state.isPublicView = false;
+                await loadUserData(user);
+                updateAuthUI(user);
+                showSection('dashboard');
+                await loadDashboardData();
+                resetLightboxUI();
+                hideLoading();
+            } else {
+                state.currentUser = null;
+                updateAuthUI(null);
+                showSection('dashboard');
+            }
+        } catch (error) {
+            console.error('Auth state error:', error);
+            showToast('Something went wrong loading your data. Check console for details.', 'error');
+            hideLoading();
         }
     });
 }
@@ -501,7 +508,8 @@ function getAuthErrorMessage(code) {
         'auth/user-not-found': 'No account found with this email',
         'auth/wrong-password': 'Incorrect password',
         'auth/popup-closed-by-user': 'Sign-in popup was closed',
-        'auth/network-request-failed': 'Network error occurred'
+        'auth/network-request-failed': 'Network error occurred',
+        'auth/invalid-credential': 'Invalid email or password. Please check your credentials or sign up if you don\'t have an account.'
     };
     return messages[code] || `An error occurred: ${code}`;
 }
